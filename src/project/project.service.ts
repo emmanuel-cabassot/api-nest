@@ -13,39 +13,39 @@ export class ProjectService {
         private projectRepository: Repository<ProjectEntity>
     ) { }
 
-    personnExist(id: number) {
-        const cv = this.findOnePersonn(id);
+    projectExist(id: number) {
+        const cv = this.findOneProject(id);
         if (!cv) {
-            new HttpException('Personne not found', 404);
+            new HttpException('Project not found', 404);
         }
 
         return cv;
     }
 
-    findAllPersonn(): Promise<ProjectEntity[]> {
+    findAllProject(): Promise<ProjectEntity[]> {
         return this.projectRepository.find();
     }
 
-    findOnePersonn(id: number): Promise<ProjectEntity> {
+    findOneProject(id: number): Promise<ProjectEntity> {
         return this.projectRepository.findOneBy({ id });
     }
 
-    addPersonn(addPersonnDto: AddProjectDto): Promise<ProjectEntity> {
-        return this.projectRepository.save(addPersonnDto);
+    addProject(addProjectDto: AddProjectDto): Promise<ProjectEntity> {
+        return this.projectRepository.save(addProjectDto);
     }
 
-    async removePersonn(id: number) {
-        const personnToRemove = await this.personnExist(id);
+    async removeProject(id: number) {
+        const projectToRemove = await this.projectExist(id);
 
-        return this.projectRepository.remove(personnToRemove);
+        return this.projectRepository.remove(projectToRemove);
     }
 
-    async deleteSoftPersonn(id: number) {
+    async deleteSoftProject(id: number) {
 
         return this.projectRepository.softDelete(id);
     }
 
-    async restorePersonn(id: number) {
+    async restoreProject(id: number) {
         return this.projectRepository.restore(id);
     }
 
@@ -54,30 +54,30 @@ export class ProjectService {
         return this.projectRepository.delete({ name });
     }
 
-    async updatePersonn(id: number, updatePersonnDto: UpdateProjectDto): Promise<ProjectEntity> {
-        const newPersonn = await this.projectRepository.preload({
+    async updateProject(id: number, updateProjectDto: UpdateProjectDto): Promise<ProjectEntity> {
+        const newProject = await this.projectRepository.preload({
             id,
-            ...updatePersonnDto
+            ...updateProjectDto
         });
-        return await this.projectRepository.save(newPersonn);
+        return await this.projectRepository.save(newProject);
     }
 
-    // recupère les personnes par age
-    async personnByAge(age: number): Promise<ProjectEntity[]> {
+    // recupère les projets par age
+    async projectByAge(age: number): Promise<ProjectEntity[]> {
         // Creér un query builder
-        const qb = this.projectRepository.createQueryBuilder('personn');
-        return qb.where('personn.age = :age')
+        const qb = this.projectRepository.createQueryBuilder('project');
+        return qb.where('project.age = :age')
         .setParameter('age', age)
         .getMany();
     }
 
-    async personnStatsByAge( minAge: number, maxAge: number ): Promise<any> {
+    async projectStatsByAge( minAge: number, maxAge: number ): Promise<any> {
         // Creér un query builder
-        const qb = this.projectRepository.createQueryBuilder('personn');
-        return await qb.select("personn.age, count(personn.id) as nombreDePersonnes")
-            .where('personn.age >= :minAge and personn.age <= :maxAge')
+        const qb = this.projectRepository.createQueryBuilder('project');
+        return await qb.select("project.age, count(project.id) as nombreDeProjets")
+            .where('project.age >= :minAge and project.age <= :maxAge')
             .setParameters( { minAge, maxAge } )
-            .groupBy("personn.age")
+            .groupBy("project.age")
             .getRawMany();
     }
 }

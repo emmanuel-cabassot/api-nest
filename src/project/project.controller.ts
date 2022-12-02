@@ -10,56 +10,56 @@ export class ProjectController {
     
     @Get('stats/:minAge/:maxAge')
     async getStatsByAge(@Param('minAge', ParseIntPipe) minAge, @Param('maxAge', ParseIntPipe) maxAge): Promise<ProjectEntity[]> {
-        return await this.projectService.personnStatsByAge(minAge, maxAge);
+        return await this.projectService.projectStatsByAge(minAge, maxAge);
     }
 
     @Get('age/:age')
-    async searchPersonnByAge(@Param('age', ParseIntPipe) age): Promise<ProjectEntity[]> {
-        return await this.projectService.personnByAge(age);
+    async searchProjectByAge(@Param('age', ParseIntPipe) age): Promise<ProjectEntity[]> {
+        return await this.projectService.projectByAge(age);
     }
 
     @Get()
-    findAllPersonn(): Promise<ProjectEntity[]> {
-        return this.projectService.findAllPersonn();
+    findAllProject(): Promise<ProjectEntity[]> {
+        return this.projectService.findAllProject();
     }
 
     @Get(':id')
-    findOnePersonn(@Param() params) {
-        return this.projectService.findOnePersonn(params.id);
+    findOneProject(@Param() params) {
+        return this.projectService.findOneProject(params.id);
     }
 
     @Post()
-    addPersonn(
-        @Body() addPersonnDto: AddProjectDto): Promise<ProjectEntity> {
-        return this.projectService.addPersonn(addPersonnDto);
+    addProject(
+        @Body() addProjectDto: AddProjectDto): Promise<ProjectEntity> {
+        return this.projectService.addProject(addProjectDto);
     }
 
     @Delete(':id')
-    removePersonn(@Param('id', ParseIntPipe) id) {
-        return this.projectService.removePersonn(id);
+    removeProject(@Param('id', ParseIntPipe) id) {
+        return this.projectService.removeProject(id);
     }
 
     @Delete('deleteSoft/:id')
-    deleteSoftPersonn(@Param('id', ParseIntPipe) id) {
-        return this.projectService.deleteSoftPersonn(id);
+    deleteSoftProject(@Param('id', ParseIntPipe) id) {
+        return this.projectService.deleteSoftProject(id);
     }
 
     @Get('restore/:id')
-    restorePersonn(@Param('id', ParseIntPipe) id) {
-        return this.projectService.restorePersonn(id);
+    restoreProject(@Param('id', ParseIntPipe) id) {
+        return this.projectService.restoreProject(id);
     }
 
-    // http://localhost:3000/personn/name/nameOfPersonn
+    // http://localhost:3000/project/name/nameOfProject
     @Delete('name/:name')
     deleteByName(@Param('name') name) {
         return this.projectService.deleteByName(name);
     }
 
     @Patch(':id')
-    async updatePersonn(
-        @Body() updatePersonnDto: UpdateProjectDto,
+    async updateProject(
+        @Body() updateProjectDto: UpdateProjectDto,
         @Param('id', ParseIntPipe) id): Promise<ProjectEntity> {
-        return await this.projectService.updatePersonn(id, updatePersonnDto);
+        return await this.projectService.updateProject(id, updateProjectDto);
     }
 
 
