@@ -1,4 +1,6 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { UserRoleEnum } from './../enum/user-role.enum';
+import { UserEntity } from './../user/entites/user.entity/user.entity';
+import { Injectable, HttpException, Delete } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectEntity } from './entities/project.entity/project.entity';
 import { Repository } from 'typeorm';
@@ -22,16 +24,46 @@ export class ProjectService {
         return cv;
     }
 
-    findAllProject(): Promise<ProjectEntity[]> {
-        return this.projectRepository.find();
+    async findAllProject(user: UserEntity): Promise<ProjectEntity[]> {
+        const { id } = user;
+        // Si l'utilisateur est un admin, on lui renvoie tous les projets
+        if (user.role === UserRoleEnum.ADMIN) {
+            const projects = await this.projectRepository.find();
+            // On enleve les informations sensibles
+            const projectsWithoutUser = projects.map( project => {
+                if (project.user === null) {
+                    return project;
+                }
+                delete project.user.password;
+                delete project.user.salt;
+                return project;
+            });
+            return projectsWithoutUser;
+        }
+        const projects = await this.projectRepository.find({
+            where: {user: { id } }
+         });
+         const projectsWithoutUser = projects.map( project => {
+                delete project.user.password;
+                delete project.user.salt;
+                return project; 
+            });
+
+         return projectsWithoutUser;
     }
 
     findOneProject(id: number): Promise<ProjectEntity> {
         return this.projectRepository.findOneBy({ id });
     }
 
-    addProject(addProjectDto: AddProjectDto): Promise<ProjectEntity> {
-        return this.projectRepository.save(addProjectDto);
+    addProject(project: AddProjectDto, user: any): Promise<ProjectEntity> {
+        // va créer un objet de type ProjectEntity et va lui ajouter les propriétés de l'objet project
+        //( si dans la requete on met d'autres informations que celles de l'objet project, elles seront ignorées)
+        const newProject = this.projectRepository.create(project);
+        // on ajoute l'utilisateur qui a créé le projet
+        newProject.user = user;
+        // on sauvegarde le projet
+        return this.projectRepository.save(newProject);
     }
 
     async removeProject(id: number) {

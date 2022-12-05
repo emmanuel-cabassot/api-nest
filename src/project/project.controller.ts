@@ -1,8 +1,12 @@
+import { UserEntity } from './../user/entites/user.entity/user.entity';
+import { JwtAuthGuard } from './../user/guards/jwt-auth.gard';
 import { ProjectService } from './project.service';
-import { Controller, Get, Post, Patch, Param, Body, ParseIntPipe, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, ParseIntPipe, Delete, UseGuards, Req } from '@nestjs/common';
 import { ProjectEntity } from './entities/project.entity/project.entity';
 import { AddProjectDto } from './dto/add-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Request } from 'express';
+import { User } from 'src/decorators/user.decorator';
 
 @Controller('project')
 export class ProjectController {
@@ -18,20 +22,33 @@ export class ProjectController {
         return await this.projectService.projectByAge(age);
     }
 
-    @Get()
-    findAllProject(): Promise<ProjectEntity[]> {
-        return this.projectService.findAllProject();
-    }
-
     @Get(':id')
     findOneProject(@Param() params) {
         return this.projectService.findOneProject(params.id);
     }
+    @Get('restore/:id')
+    restoreProject(@Param('id', ParseIntPipe) id) {
+        return this.projectService.restoreProject(id);
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    async findAllProject(
+        @User() user: UserEntity
+    ): Promise<ProjectEntity[]> {
+        
+        return await this.projectService.findAllProject(user);
+    }
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     addProject(
-        @Body() addProjectDto: AddProjectDto): Promise<ProjectEntity> {
-        return this.projectService.addProject(addProjectDto);
+        @Body() addProjectDto: AddProjectDto,
+        // @Req() va récupérer les infos qui sont renvoyées par la méthode validate de la classe JwtStrategy(jwt-strategy.ts)
+        @Req() request: Request
+    ) {
+        const user = request.user;
+        return this.projectService.addProject(addProjectDto, user);
     }
 
     @Delete(':id')
@@ -42,11 +59,6 @@ export class ProjectController {
     @Delete('deleteSoft/:id')
     deleteSoftProject(@Param('id', ParseIntPipe) id) {
         return this.projectService.deleteSoftProject(id);
-    }
-
-    @Get('restore/:id')
-    restoreProject(@Param('id', ParseIntPipe) id) {
-        return this.projectService.restoreProject(id);
     }
 
     // http://localhost:3000/project/name/nameOfProject

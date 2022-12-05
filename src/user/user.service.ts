@@ -5,12 +5,14 @@ import { UserEntity } from './entites/user.entity/user.entity';
 import { Repository } from 'typeorm';
 import { userRegisterDto } from './dto/user-register.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(UserEntity)
-        private userRepository: Repository<UserEntity>
+        private userRepository: Repository<UserEntity>,
+        private jwtService: JwtService
     ) { }
 
     findAllUser(): Promise<UserEntity[]> {
@@ -53,12 +55,17 @@ export class UserService {
         // on compare le mot de passe envoyé avec le mot de passe hashé
         const hashedPassword = await bcrypt.hash(password, user.salt);
         if (hashedPassword === user.password) {
-            return {
+            const payload = {
                 id: user.id,
                 surname: user.surname,
                 email: user.email,
                 role: user.role
             };
+            const token = this.jwtService.sign(payload);
+            return {
+                "access_token": token
+            };
+          
         // si le mot de passe ne correspond pas on renvoie une erreur
         } else {
             throw new NotFoundException('user or password incorrect');

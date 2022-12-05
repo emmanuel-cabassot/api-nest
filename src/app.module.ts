@@ -8,7 +8,7 @@ import { ProjectModule } from './project/project.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-    }), 
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -23,4 +23,4 @@ import { ProjectModule } from './project/project.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

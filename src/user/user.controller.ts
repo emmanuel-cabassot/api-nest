@@ -1,5 +1,6 @@
+import { JwtAuthGuard } from './guards/jwt-auth.gard';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserEntity } from './entites/user.entity/user.entity';
 import { userRegisterDto } from './dto/user-register.dto';
@@ -9,6 +10,7 @@ export class UserController {
     constructor(private userService: UserService) { }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     findAllUser(): Promise<UserEntity[]> {
         return this.userService.findAllUser();
     }
@@ -19,7 +21,7 @@ export class UserController {
     }
 
     @Get('login')
-    loginCredentialsDto(@Body() loginCredentialsDto: LoginCredentialsDto): Promise<Partial<UserEntity>> {
+    loginCredentialsDto(@Body() loginCredentialsDto: LoginCredentialsDto) {
         return this.userService.login(loginCredentialsDto);
     }
 }
