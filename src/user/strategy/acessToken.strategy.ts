@@ -10,8 +10,9 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class AccessTokenStrategy extends PassportStrategy(Strategy) {
   constructor(
+    // Injecte le repository de l'entité UserEntity qui sera utilisé dans la méthode validate
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
   ) {
@@ -28,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: PayloadInterface) {
     const user = await this.userRepository.findOneBy({ email: payload.email });
     if (user) {
-      const { password, salt, ...result } = user;
+      const { password,  ...result } = user;
       return result;
     } else {
       return new UnauthorizedException();

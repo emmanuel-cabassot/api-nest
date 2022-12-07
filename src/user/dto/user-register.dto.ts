@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsNumber, Min, Max, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, Min, Max, IsEmail, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class userRegisterDto {
-    
     @IsNotEmpty()
     @IsString()
     surname: string;

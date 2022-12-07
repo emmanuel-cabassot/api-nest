@@ -1,4 +1,5 @@
-import { JwtStrategy } from './strategy/jwt-strategy';
+import { AccessTokenStrategy } from './strategy/acessToken.strategy';
+import { RefreshTokenStrategy } from './strategy/refreshToken.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
@@ -12,9 +13,6 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
-    PassportModule.register({ 
-      defaultStrategy: 'jwt'
-    }),
     JwtModule.register({
       // récupère les constantes du fichier .env grâce à la librairie dotenv(porcess.env.SECRET_KEY_JWT)
       secret: process.env.SECRET_KEY_JWT,
@@ -24,6 +22,6 @@ dotenv.config();
     })
 ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy],
+  providers: [UserService, AccessTokenStrategy, RefreshTokenStrategy]
 })
 export class UserModule {}

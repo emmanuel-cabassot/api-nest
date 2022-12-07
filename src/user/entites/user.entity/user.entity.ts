@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { UserRoleEnum } from './../../../enum/user-role.enum';
 import { Exclude } from 'class-transformer';
+import { IsOptional } from 'class-validator';
 
 @Entity('user')
 export class UserEntity {
@@ -25,16 +26,17 @@ export class UserEntity {
     })
     password: string;
 
-    @Column()
-    @Exclude()
-    salt: string;
-
     @Column({
         type: 'enum',
         enum: UserRoleEnum,
         default: UserRoleEnum.USER
     })
     role: string;
+
+    @Column({
+        default: null
+    })
+    refresh_token: string;
 
     @CreateDateColumn({
         update: false,
