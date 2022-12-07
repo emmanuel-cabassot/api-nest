@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy) {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     // Injecte le repository de l'entité UserEntity qui sera utilisé dans la méthode validate
     @InjectRepository(UserEntity)
@@ -19,7 +19,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
     // gestion des requêtes entrantes
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       // récupère le secret du fichier user.module.ts
       secretOrKey: process.env.SECRET_KEY_JWT,
     });

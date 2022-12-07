@@ -38,6 +38,16 @@ export class UserEntity {
     })
     refresh_token: string;
 
+    @OneToMany(
+        type => ProjectEntity,
+        project => project.user,
+        {
+            // cascade: true,
+            nullable: true
+        }
+    )
+    projects: ProjectEntity[];
+
     @CreateDateColumn({
         update: false,
     })
@@ -48,15 +58,4 @@ export class UserEntity {
 
     @DeleteDateColumn()
     deletedAt: Date;
-
-
-    @OneToMany(
-        type => ProjectEntity,
-        project => project.user,
-        {
-            // cascade: true,
-            nullable: true
-        }
-    )
-    projects: ProjectEntity[];
 }

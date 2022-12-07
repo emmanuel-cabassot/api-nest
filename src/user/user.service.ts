@@ -23,11 +23,10 @@ export class UserService {
     }
 
     async userRegister(userData: userRegisterDto) {
-        const { surname, email } = userData;
         const password = await argon2.hash(userData.password);
 
         const user = await this.userRepository.create({
-            surname, email, password
+            ...userData, password
         });
 
         try {
@@ -133,8 +132,6 @@ export class UserService {
             ),
         ]);
 
-        // console.log('refreshToken(getToken): ', refreshToken);
-        // console.log('accessToken(getToken): ', accessToken);
         return {
             accessToken,
             refreshToken,

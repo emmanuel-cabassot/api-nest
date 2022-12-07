@@ -16,9 +16,6 @@ dotenv.config();
     JwtModule.register({
       // récupère les constantes du fichier .env grâce à la librairie dotenv(porcess.env.SECRET_KEY_JWT)
       secret: process.env.SECRET_KEY_JWT,
-      signOptions: {
-        expiresIn: 3600
-      },
     })
 ],
   controllers: [UserController],
