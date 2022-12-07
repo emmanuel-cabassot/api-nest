@@ -35,7 +35,6 @@ export class ProjectService {
                     return project;
                 }
                 delete project.user.password;
-                delete project.user.salt;
                 return project;
             });
             return projectsWithoutUser;
@@ -45,7 +44,6 @@ export class ProjectService {
          });
          const projectsWithoutUser = projects.map( project => {
                 delete project.user.password;
-                delete project.user.salt;
                 return project; 
             });
 

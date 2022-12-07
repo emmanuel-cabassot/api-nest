@@ -1,5 +1,5 @@
+import { AccessTokenGuard } from './../user/guards/access-token.guard';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
-import { JwtAuthGuard } from './../user/guards/jwt-auth.gard';
 import { ProjectService } from './project.service';
 import { Controller, Get, Post, Patch, Param, Body, ParseIntPipe, Delete, UseGuards, Req } from '@nestjs/common';
 import { ProjectEntity } from './entities/project.entity/project.entity';
@@ -27,12 +27,13 @@ export class ProjectController {
         return this.projectService.findOneProject(params.id);
     }
     @Get('restore/:id')
+    @UseGuards(AccessTokenGuard)
     restoreProject(@Param('id', ParseIntPipe) id) {
         return this.projectService.restoreProject(id);
     }
 
     @Get()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(AccessTokenGuard)
     async findAllProject(
         @User() user: UserEntity
     ): Promise<ProjectEntity[]> {
@@ -41,7 +42,7 @@ export class ProjectController {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(AccessTokenGuard)
     addProject(
         @Body() addProjectDto: AddProjectDto,
         // @Req() va récupérer les infos qui sont renvoyées par la méthode validate de la classe JwtStrategy(jwt-strategy.ts)
@@ -52,22 +53,26 @@ export class ProjectController {
     }
 
     @Delete(':id')
+    @UseGuards(AccessTokenGuard)
     removeProject(@Param('id', ParseIntPipe) id) {
         return this.projectService.removeProject(id);
     }
 
     @Delete('deleteSoft/:id')
+    @UseGuards(AccessTokenGuard)
     deleteSoftProject(@Param('id', ParseIntPipe) id) {
         return this.projectService.deleteSoftProject(id);
     }
 
     // http://localhost:3000/project/name/nameOfProject
     @Delete('name/:name')
+    @UseGuards(AccessTokenGuard)
     deleteByName(@Param('name') name) {
         return this.projectService.deleteByName(name);
     }
 
     @Patch(':id')
+    @UseGuards(AccessTokenGuard)
     async updateProject(
         @Body() updateProjectDto: UpdateProjectDto,
         @Param('id', ParseIntPipe) id): Promise<ProjectEntity> {
