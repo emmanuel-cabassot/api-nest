@@ -15,16 +15,11 @@ export class ProjectService {
         private projectRepository: Repository<ProjectEntity>
     ) { }
 
-    projectExist(id: number) {
-        const cv = this.findOneProject(id);
-        if (!cv) {
-            new HttpException('Project not found', 404);
-        }
-
-        return cv;
+    async findAllProjects(): Promise<ProjectEntity[]> {
+        return this.projectRepository.find();
     }
 
-    async findAllProject(user: UserEntity): Promise<ProjectEntity[]> {
+    async findMyProjects(user: UserEntity): Promise<ProjectEntity[]> {
         const { id } = user;
         // Si l'utilisateur est un admin, on lui renvoie tous les projets
         if (user.role === UserRoleEnum.ADMIN) {
@@ -50,11 +45,13 @@ export class ProjectService {
          return projectsWithoutUser;
     }
 
-    findOneProject(id: number): Promise<ProjectEntity> {
+    async findOneProject(id: number): Promise<ProjectEntity> {
+        const project = await this.projectExist(id);
+       
         return this.projectRepository.findOneBy({ id });
     }
 
-    addProject(project: AddProjectDto, user: any): Promise<ProjectEntity> {
+    addProject(project: AddProjectDto, user ): Promise<ProjectEntity> {
         // va créer un objet de type ProjectEntity et va lui ajouter les propriétés de l'objet project
         //( si dans la requete on met d'autres informations que celles de l'objet project, elles seront ignorées)
         const newProject = this.projectRepository.create(project);
@@ -64,24 +61,42 @@ export class ProjectService {
         return this.projectRepository.save(newProject);
     }
 
-    async removeProject(id: number) {
+    async removeProject(id: number, user: object) {
         const projectToRemove = await this.projectExist(id);
+
+        if (projectToRemove.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN)
+            throw new HttpException("Vous ne pouvez pas supprimer un projet que vous n'avez pas créé", 403);
 
         return this.projectRepository.remove(projectToRemove);
     }
 
-    async deleteSoftProject(id: number) {
+    async deleteSoftProject(id: number, user: object) {
+        const projectToDelete = await this.projectExist(id);
+
+        if (projectToDelete.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN) 
+            throw new HttpException("Vous ne pouvez pas supprimer un projet que vous n'avez pas créé", 403);
 
         return this.projectRepository.softDelete(id);
     }
 
-    async restoreProject(id: number) {
+    async restoreProject(id: number, user: object) {
+        const projectToRestore = await this.projectExist(id);
+        
+        if (projectToRestore.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN) 
+            throw new HttpException("Vous ne pouvez pas restaurer un projet que vous n'avez pas créé", 403);
+
         return this.projectRepository.restore(id);
     }
 
-    deleteByName(name: string) {
-
-        return this.projectRepository.delete({ name });
+    async deleteByName(name: string, user: object) {
+        const id = user['id'];
+        const projectToDelete = await this.projectRepository.findOne( { where: { name, user: { id } } } );
+        console.log('projectToDelete', projectToDelete);
+        if (!projectToDelete) 
+            throw new HttpException('Project not found', 404);
+        
+            
+        return this.projectRepository.delete(projectToDelete);
     }
 
     async updateProject(id: number, updateProjectDto: UpdateProjectDto): Promise<ProjectEntity> {
@@ -109,6 +124,15 @@ export class ProjectService {
             .setParameters( { minAge, maxAge } )
             .groupBy("project.age")
             .getRawMany();
+    }
+
+    async projectExist(id: number) {
+        const project = await this.projectRepository.findOneBy({id});
+        if (!project) {
+            throw new HttpException('Project not found', 404);
+        }
+
+        return project;
     }
 }
 

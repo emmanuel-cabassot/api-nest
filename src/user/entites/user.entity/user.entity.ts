@@ -1,8 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { UserRoleEnum } from './../../../enum/user-role.enum';
-import { Exclude } from 'class-transformer';
-import { IsOptional } from 'class-validator';
 
 @Entity('user')
 export class UserEntity {

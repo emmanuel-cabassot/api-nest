@@ -26,6 +26,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
 
 
   async validate(payload: PayloadInterface) {
+    console.log('on rentre dans le validate de accessTokenStrategy')
     const user = await this.userRepository.findOneBy({ email: payload.email });
     if (user) {
       const { password,  ...result } = user;

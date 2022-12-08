@@ -15,7 +15,7 @@ dotenv.config();
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({
       // récupère les constantes du fichier .env grâce à la librairie dotenv(porcess.env.SECRET_KEY_JWT)
-      secret: process.env.SECRET_KEY_JWT,
+      //secret: process.env.SECRET_KEY_JWT,
     })
 ],
   controllers: [UserController],
