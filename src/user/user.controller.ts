@@ -4,11 +4,14 @@ import { LoginCredentialsDto } from './dto/login-credentials.dto';
 import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserEntity } from './entites/user.entity/user.entity';
-import { userRegisterDto } from './dto/user-register.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
 import { Request } from 'express';
 import { User } from 'src/decorators/user.decorator';
+import { ApiTags, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('user')
 export class UserController {
     constructor(private userService: UserService) { }
 
@@ -19,31 +22,30 @@ export class UserController {
     }
 
     @Post('register')
-    userRegister(@Body() userRegisterDto: userRegisterDto) {
+    @ApiBody({ type: [UserRegisterDto] })
+    userRegister(@Body() userRegisterDto: UserRegisterDto) {
         return this.userService.userRegister(userRegisterDto);
     }
 
-    @Get('login')
+    @Post('login')
+    @ApiBody({ type: [LoginCredentialsDto] })
     loginCredentialsDto(@Body() loginCredentialsDto: LoginCredentialsDto) {
         return this.userService.login(loginCredentialsDto);
     }
 
 
-    @UseGuards(AccessTokenGuard)
     @Get('refresh')
-    refreshTokens(@Body() refreshTokenObject, @User() user: Request) {
+    refreshTokens(@Body() refreshTokenObject) {
         console.log('refreshToken : ', refreshTokenObject.refresh_token);
         const refreshToken = refreshTokenObject.refresh_token;
-        const userId = user['id'];
+        const userId = refreshTokenObject.id
         // console.log(request)
         // console.log('refreshToken (user controller) : ', refreshToken);
         return this.userService.refreshTokens(userId, refreshToken);
     }
 
-    // refresh token bdd : $2b$10$PDjTajcxIg/KDO0y5hZ8Wu5MW7UeK//9pHnasaXY.YKzCrsWdN2Le
-    // refresh token :  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjUsInN1cm5hbWUiOiJlbW1hbnVlbEBnbWFpbC5jb20iLCJlbWFpbCI6ImVtbWFudWVsQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjcwMzU0NTQ1LCJleHAiOjE2NzA5NTkzNDV9.837-H1L7-pUMVP1NzcQdLOe3Qc1AgRbZLKuEHLx1HCI
     @Get('logout')
-    @UseGuards(RefreshTokenGuard)
+    @UseGuards(AccessTokenGuard)
     logout(@Req() request: Request) {
         const userId = request.user['id']
         return this.userService.logout(userId);

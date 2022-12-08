@@ -3,11 +3,11 @@ import { Injectable, ConflictException, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entites/user.entity/user.entity';
 import { Repository } from 'typeorm';
-import { userRegisterDto } from './dto/user-register.dto';
-import * as bcrypt from 'bcrypt';
+import { UserRegisterDto } from './dto/user-register.dto';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
 
 @Injectable()
 export class UserService {
@@ -22,7 +22,7 @@ export class UserService {
         return this.userRepository.find();
     }
 
-    async userRegister(userData: userRegisterDto) {
+    async userRegister(userData: UserRegisterDto) {
         const password = await argon2.hash(userData.password);
 
         const user = await this.userRepository.create({
@@ -39,8 +39,8 @@ export class UserService {
         await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return {
-            refresh_token: tokens.accessToken,
             access_token: tokens.refreshToken,
+            refresh_token: tokens.accessToken,
         };
     }
 
@@ -114,8 +114,8 @@ export class UserService {
                     role
                 },
                 {
-                    secret: this.configService.get<string>('SECRET_KEY_JWT'),
-                    expiresIn: '17m',
+                    secret: process.env.SECRET_KEY_JWT,
+                    expiresIn: 10,
                 },
             ),
             this.jwtService.signAsync(
@@ -126,8 +126,8 @@ export class UserService {
                     role
                 },
                 {
-                    secret: this.configService.get<string>('SECRET_REFRESH_KEY_JW'),
-                    expiresIn: '7d',
+                    secret: process.env.SECRET_REFRESH_KEY_JWT,
+                    expiresIn: 60 * 60 * 24 * 30,
                 },
             ),
         ]);
