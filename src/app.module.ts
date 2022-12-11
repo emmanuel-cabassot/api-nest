@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectModule } from './project/project.module';
+import { CompetenceModule } from './competence/competence.module';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ProjectModule } from './project/project.module';
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-    }), ProjectModule, UserModule
+    }), ProjectModule, UserModule, CompetenceModule
   ],
   controllers: [],
   providers: [],
