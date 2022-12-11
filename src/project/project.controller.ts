@@ -1,4 +1,3 @@
-import { projectCompetenceEntity } from './entities/project-competence.entity/project-competence.entity';
 import { AccessTokenGuard } from './../user/guards/access-token.guard';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
 import { ProjectService } from './project.service';
@@ -61,15 +60,6 @@ export class ProjectController {
         const user = request.user;
         return this.projectService.restoreProject(id, user);
     }
-
-    @Get('competence/:id')
-    async findCompetencesByProject(@Param('id', ParseIntPipe) id: number): Promise<projectCompetenceEntity[]> {
-        return await this.projectService.findCompetencesByProject(id);
-    }
-
-    // async findNameOfCompetenceById(id: number): Promise<string> {
-    //     return await this.projectService.findNameOfCompetenceById(id);
-    // }
 
     @Get()
     async findAllProjects(): Promise<ProjectEntity[]> {

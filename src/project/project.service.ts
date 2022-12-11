@@ -8,67 +8,80 @@ import { Repository } from 'typeorm';
 import { AddProjectDto } from './dto/add-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
-
 @Injectable()
 export class ProjectService {
     constructor(
         @InjectRepository(ProjectEntity)
-        private projectRepository: Repository<ProjectEntity>,
-        @InjectRepository(projectCompetenceEntity)
-        private projectCompetenceRepository: Repository<projectCompetenceEntity>
+        private projectRepository: Repository<ProjectEntity>
     ) { }
 
     async findAllProjects(): Promise<ProjectEntity[]> {
-        return this.projectRepository.find();
+        const allProjects = await this.projectRepository.find();
+        const projectsWithSofttUser = allProjects.map(project => {
+            if (project.user === null)
+                return project;
+
+            this.deleteSensitiveDataUser(project);
+
+            return project;
+        });
+        return projectsWithSofttUser;
     }
 
-    async findCompetencesByProject(id: number): Promise<projectCompetenceEntity[]> {
-        return this.projectCompetenceRepository.find({ where: { project: { id } } });
-    }
-
-    // async findNameCompetencesByProject(id: number): Promise<string[]> {
-
-    
     async findMyProjects(user: UserEntity): Promise<ProjectEntity[]> {
         const { id } = user;
         // Si l'utilisateur est un admin, on lui renvoie tous les projets
         if (user.role === UserRoleEnum.ADMIN) {
             const projects = await this.projectRepository.find();
             // On enleve les informations sensibles
-            const projectsWithoutUser = projects.map( project => {
-                if (project.user === null) {
+            const projectsWithoutUser = projects.map(project => {
+                // Si le projet n'a pas d'utilisateur, on le renvoie tel quel
+                if (project.user === null)
                     return project;
-                }
-                delete project.user.password;
+                // Sinon on enleve les informations sensibles
+                this.deleteSensitiveDataUser(project);
+
                 return project;
             });
             return projectsWithoutUser;
         }
         const projects = await this.projectRepository.find({
-            where: {user: { id } }
-         });
-         const projectsWithoutUser = projects.map( project => {
-                delete project.user.password;
-                return project; 
-            });
+            where: { user: { id } }
+        });
+        //Si l'on ne trouve pas de projet, on renvoie une erreur
+        if (!projects)
+            throw new HttpException("Vous n'avez pas encore créé de projet", 404);
 
-         return projectsWithoutUser;
+        // On enleve les informations sensibles
+        const projectsWithoutUser = projects.map(project => {
+            delete project.user.password;
+            return project;
+        });
+
+        return projectsWithoutUser;
     }
 
     async findOneProject(id: number): Promise<ProjectEntity> {
         const project = await this.projectExist(id);
-       
-        return this.projectRepository.findOneBy({ id });
+        // Si le projet n'a pas d'utilisateur, on le renvoie tel quel
+        project ? this.deleteSensitiveDataUser(project) : null
+
+        return project;
     }
 
-    addProject(project: AddProjectDto, user ): Promise<ProjectEntity> {
+    async addProject(project: AddProjectDto, user): Promise<ProjectEntity> {
         // va créer un objet de type ProjectEntity et va lui ajouter les propriétés de l'objet project
         //( si dans la requete on met d'autres informations que celles de l'objet project, elles seront ignorées)
         const newProject = this.projectRepository.create(project);
         // on ajoute l'utilisateur qui a créé le projet
         newProject.user = user;
-        // on sauvegarde le projet
-        return this.projectRepository.save(newProject);
+        // on sauvegarde le projet en base de données
+        const saveProject = await this.projectRepository.save(newProject);
+        // on enleve les informations sensibles de l'utilisateur
+        saveProject ? this.deleteSensitiveDataUser(saveProject) : null
+
+        // on renvoie le projet
+        return saveProject;
     }
 
     async removeProject(id: number, user: object) {
@@ -83,7 +96,7 @@ export class ProjectService {
     async deleteSoftProject(id: number, user: object) {
         const projectToDelete = await this.projectExist(id);
 
-        if (projectToDelete.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN) 
+        if (projectToDelete.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN)
             throw new HttpException("Vous ne pouvez pas supprimer un projet que vous n'avez pas créé", 403);
 
         return this.projectRepository.softDelete(id);
@@ -91,8 +104,8 @@ export class ProjectService {
 
     async restoreProject(id: number, user: object) {
         const projectToRestore = await this.projectExist(id);
-        
-        if (projectToRestore.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN) 
+
+        if (projectToRestore.user.id !== user['id'] && user['role'] !== UserRoleEnum.ADMIN)
             throw new HttpException("Vous ne pouvez pas restaurer un projet que vous n'avez pas créé", 403);
 
         return this.projectRepository.restore(id);
@@ -100,12 +113,12 @@ export class ProjectService {
 
     async deleteByName(name: string, user: object) {
         const id = user['id'];
-        const projectToDelete = await this.projectRepository.findOne( { where: { name, user: { id } } } );
+        const projectToDelete = await this.projectRepository.findOne({ where: { name, user: { id } } });
         console.log('projectToDelete', projectToDelete);
-        if (!projectToDelete) 
+        if (!projectToDelete)
             throw new HttpException('Project not found', 404);
-        
-            
+
+
         return this.projectRepository.delete(projectToDelete);
     }
 
@@ -114,6 +127,7 @@ export class ProjectService {
             id,
             ...updateProjectDto
         });
+
         return await this.projectRepository.save(newProject);
     }
 
@@ -122,26 +136,35 @@ export class ProjectService {
         // Creér un query builder
         const qb = this.projectRepository.createQueryBuilder('project');
         return qb.where('project.age = :age')
-        .setParameter('age', age)
-        .getMany();
+            .setParameter('age', age)
+            .getMany();
     }
 
-    async projectStatsByAge( minAge: number, maxAge: number ): Promise<any> {
+    async projectStatsByAge(minAge: number, maxAge: number): Promise<any> {
         // Creér un query builder
         const qb = this.projectRepository.createQueryBuilder('project');
         return await qb.select("project.age, count(project.id) as nombreDeProjets")
             .where('project.age >= :minAge and project.age <= :maxAge')
-            .setParameters( { minAge, maxAge } )
+            .setParameters({ minAge, maxAge })
             .groupBy("project.age")
             .getRawMany();
     }
 
     async projectExist(id: number) {
-        const project = await this.projectRepository.findOneBy({id});
+        const project = await this.projectRepository.findOneBy({ id });
         if (!project) {
             throw new HttpException('Project not found', 404);
         }
 
+        return project;
+    }
+
+    async deleteSensitiveDataUser(project: ProjectEntity) {
+        delete project.user.password;
+        delete project.user.refresh_token;
+        delete project.user.email;
+        delete project.user.createdAt;
+        delete project.user.updatedAt;
         return project;
     }
 }
