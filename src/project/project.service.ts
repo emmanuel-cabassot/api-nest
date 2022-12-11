@@ -1,3 +1,4 @@
+import { projectCompetenceEntity } from './entities/project-competence.entity/project-competence.entity';
 import { UserRoleEnum } from './../enum/user-role.enum';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
 import { Injectable, HttpException, Delete } from '@nestjs/common';
@@ -12,13 +13,22 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 export class ProjectService {
     constructor(
         @InjectRepository(ProjectEntity)
-        private projectRepository: Repository<ProjectEntity>
+        private projectRepository: Repository<ProjectEntity>,
+        @InjectRepository(projectCompetenceEntity)
+        private projectCompetenceRepository: Repository<projectCompetenceEntity>
     ) { }
 
     async findAllProjects(): Promise<ProjectEntity[]> {
         return this.projectRepository.find();
     }
 
+    async findCompetencesByProject(id: number): Promise<projectCompetenceEntity[]> {
+        return this.projectCompetenceRepository.find({ where: { project: { id } } });
+    }
+
+    // async findNameCompetencesByProject(id: number): Promise<string[]> {
+
+    
     async findMyProjects(user: UserEntity): Promise<ProjectEntity[]> {
         const { id } = user;
         // Si l'utilisateur est un admin, on lui renvoie tous les projets

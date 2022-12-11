@@ -24,7 +24,7 @@ export class projectCompetenceEntity {
     @ManyToOne(
         () => CompetenceEntity,
         competence => competence.projects,
-        { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }
+        { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' , eager: true}
     )
     @JoinColumn([{ name: 'id_competence', referencedColumnName: 'id' }])
     competence: CompetenceEntity;

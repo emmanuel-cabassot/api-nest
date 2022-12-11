@@ -8,7 +8,7 @@ export class CompetenceEntity {
     
     @Column({
         type: 'varchar',
-        length: 15,
+        length: 30,
     })
     name: string;
 
