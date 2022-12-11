@@ -1,3 +1,4 @@
+import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne } from 'typeorm';
 
@@ -39,4 +40,6 @@ export class ProjectEntity {
         }
     )
     user: UserEntity;
+
+    competences?: CompetenceEntity[];
 }

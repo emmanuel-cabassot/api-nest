@@ -1,3 +1,4 @@
+import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('competence')
 export class CompetenceEntity {
@@ -10,4 +11,6 @@ export class CompetenceEntity {
         length: 15,
     })
     name: string;
+
+    projects: ProjectEntity[];
 }
