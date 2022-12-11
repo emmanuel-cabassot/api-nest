@@ -1,5 +1,7 @@
+import { projectCompetenceEntity } from './../project-competence.entity/project-competence.entity';
+import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity('project')
 export class ProjectEntity {
@@ -39,4 +41,11 @@ export class ProjectEntity {
         }
     )
     user: UserEntity;
+
+    @OneToMany(
+        type => projectCompetenceEntity,
+        competence => competence.project,
+        {eager: true}
+    )
+    competences?: CompetenceEntity[];
 }
