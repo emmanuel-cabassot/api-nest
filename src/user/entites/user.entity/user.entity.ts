@@ -1,3 +1,4 @@
+import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { UserRoleEnum } from './../../../enum/user-role.enum';
@@ -48,6 +49,17 @@ export class UserEntity {
         }
     )
     projects: ProjectEntity[];
+
+    @OneToMany(
+        type => projectUserEntity,
+        projectUser => projectUser.user,
+        {
+            // cascade: true,
+            nullable: true
+        }
+    )
+    projectUsers: projectUserEntity[];
+
 
     @CreateDateColumn({
         update: false,

@@ -1,3 +1,4 @@
+import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
 import { projectCompetenceEntity } from './../project-competence.entity/project-competence.entity';
 import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
@@ -48,4 +49,17 @@ export class ProjectEntity {
         {eager: true}
     )
     competences?: CompetenceEntity[];
+
+    @OneToMany(
+        type => projectUserEntity,
+        projectUser => projectUser.project,
+        {
+            // cascade: true,
+            nullable: true,
+            eager: true
+        }
+    )
+    projectUsers: projectUserEntity[];
+
+
 }
