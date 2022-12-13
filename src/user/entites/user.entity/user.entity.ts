@@ -31,6 +31,9 @@ export class UserEntity {
     })
     role: string;
 
+    @Column({nullable: true})
+    profileImage: string;
+
     @Column({
         default: null
     })
