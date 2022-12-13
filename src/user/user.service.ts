@@ -1,3 +1,4 @@
+import { from, Observable, switchMap } from 'rxjs';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -102,6 +103,16 @@ export class UserService {
         await this.update(userId, {
             refresh_token: hashedRefreshToken,
         });
+    }
+
+    updateOne(id: number, user: Partial<UserEntity>): Observable<any> {
+        delete user.email;
+        delete user.password;
+        delete user.role;
+
+        return from(this.userRepository.update(id, user)).pipe(
+            switchMap(() => this.userRepository.findOneBy({ id }))
+        );
     }
 
     async getTokens(userId: number, surname: string, email: string, role: string) {
