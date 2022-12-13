@@ -7,20 +7,21 @@ import { UserRegisterDto } from './dto/user-register.dto';
 import { Request } from 'express';
 import { ApiTags, ApiParam, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ParseFilePipe } from '@nestjs/common/pipes';
+import { FileTypeValidator, MaxFileSizeValidator, ParseFilePipe } from '@nestjs/common/pipes';
 import * as path from 'path';
 import { join } from 'path';
 import { map, Observable, of, tap } from 'rxjs';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
+import { buildMessage } from 'class-validator';
 
 export const storage = {
     storage: diskStorage({
         destination: './uploads/profileimages',
         filename: (req, file, cb) => {
             console.log(req.user);
-            
+
             console.log('path manuel@@@@@@@', file.originalname)
             console.log('path : ', path.parse(file.originalname));
             if (req.user['profileImage']) {
@@ -35,7 +36,7 @@ export const storage = {
                 ))
             }
 
-            
+
             const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
             const extension: string = path.parse(file.originalname).ext;
 
@@ -89,16 +90,22 @@ export class UserController {
     @UseGuards(AccessTokenGuard)
     @Post('upload')
     @UseInterceptors(FileInterceptor('file', storage))
-        uploadFile(@UploadedFile() file, @Req() req): Observable<Object> {
-            const user: UserEntity = req.user;
-    
-            return this.userService.updateOne(user.id, {profileImage: file.filename}).pipe(
-                tap((user: UserEntity) => console.log(user)),
-                map((user:UserEntity) => ({profileImage: user.profileImage}))
-            )
-        }
+    uploadFile(@UploadedFile(
+        new ParseFilePipe({
+            validators: [
+                new MaxFileSizeValidator({ maxSize: 10000000 }),
+                new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/}),
+            ]
+        })
+    ) file, @Req() req): Observable<Object> {
+        const user: UserEntity = req.user;
 
-        
+        return this.userService.updateOne(user.id, { profileImage: file.filename }).pipe(
+            tap((user: UserEntity) => console.log(user)),
+            map((user: UserEntity) => ({ profileImage: user.profileImage }))
+        )
+    }
+
     @Get('profile-image/:imagename')
     findProfileImage(@Param('imagename') imagename, @Res() res): Observable<Object> {
         return of(res.sendFile(join(process.cwd(), 'uploads/profileimages/' + imagename)));
