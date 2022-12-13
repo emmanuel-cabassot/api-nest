@@ -1,5 +1,5 @@
+import { projectCompetenceEntity } from './../project-competence/entities/project-competence.entity/project-competence.entity';
 import { CompetenceEntity } from './../competence/entities/competence.entity/competence.entity';
-import { projectCompetenceEntity } from './entities/project-competence.entity/project-competence.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { ProjectController } from './project.controller';

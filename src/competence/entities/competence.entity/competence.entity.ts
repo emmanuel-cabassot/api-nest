@@ -1,4 +1,4 @@
-import { projectCompetenceEntity } from './../../../project/entities/project-competence.entity/project-competence.entity';
+import { projectCompetenceEntity } from './../../../project-competence/entities/project-competence.entity/project-competence.entity';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 @Entity('competence')

@@ -1,6 +1,8 @@
+import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
-import { ProjectEntity } from './../project.entity/project.entity';
 import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+
+
 @Entity('project_competence')
 export class projectCompetenceEntity {
     @PrimaryColumn({
