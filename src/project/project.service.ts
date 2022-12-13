@@ -1,5 +1,4 @@
 import { CompetenceEntity } from './../competence/entities/competence.entity/competence.entity';
-import { projectCompetenceEntity } from './entities/project-competence.entity/project-competence.entity';
 import { UserRoleEnum } from './../enum/user-role.enum';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
 import { Injectable, HttpException, Delete } from '@nestjs/common';
@@ -11,11 +10,10 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectService {
+    
     constructor(
         @InjectRepository(ProjectEntity)
         private projectRepository: Repository<ProjectEntity>,
-        @InjectRepository(projectCompetenceEntity)
-        private projectCompetenceRepository: Repository<projectCompetenceEntity>,
         @InjectRepository(CompetenceEntity)
         private competenceRepository: Repository<CompetenceEntity>
     ) { }
@@ -72,26 +70,6 @@ export class ProjectService {
         project ? this.deleteSensitiveDataUser(project) : null
 
         return project;
-    }
-
-    async findProjectsByCompetence(id: number) {
-        const competence = await this.projectCompetenceRepository.find({ where: { idCompetence: id }});
-        // Si la compétence n'existe pas, on renvoie une erreur
-        if (!competence)
-            throw new HttpException("Cette compétence n'existe dans aucun projet", 404);
-
-        const idsProject = competence.map( project => {
-            return project.idProject
-        });
-
-        const projects = await this.projectRepository.find({ where: { id: In(idsProject) } });
-        const projectsWithSofttUser = projects.map(project => {
-            
-            this.deleteSensitiveDataUser(project);
-
-            return project;
-        });
-        return projectsWithSofttUser;
     }
 
     async addProject(project: AddProjectDto, user): Promise<ProjectEntity> {

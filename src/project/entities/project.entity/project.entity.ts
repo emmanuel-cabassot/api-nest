@@ -1,5 +1,5 @@
+import { projectCompetenceEntity } from './../../../project-competence/entities/project-competence.entity/project-competence.entity';
 import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
-import { projectCompetenceEntity } from './../project-competence.entity/project-competence.entity';
 import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
