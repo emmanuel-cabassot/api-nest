@@ -44,7 +44,7 @@ export class ProjectEntity {
 
     @OneToMany(
         type => projectCompetenceEntity,
-        competence => competence.project,
+        projectCompetence => projectCompetence.project,
         {eager: true}
     )
     competences?: CompetenceEntity[];

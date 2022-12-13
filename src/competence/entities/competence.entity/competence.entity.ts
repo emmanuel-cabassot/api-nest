@@ -1,5 +1,6 @@
+import { projectCompetenceEntity } from './../../../project/entities/project-competence.entity/project-competence.entity';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 @Entity('competence')
 export class CompetenceEntity {
     
@@ -12,5 +13,9 @@ export class CompetenceEntity {
     })
     name: string;
 
-    projects: ProjectEntity[];
+    @OneToMany(
+        type => projectCompetenceEntity,
+        projectCompetence => projectCompetence.competence
+    )
+    projects: projectCompetenceEntity[];
 }
