@@ -61,6 +61,11 @@ export class ProjectController {
         return this.projectService.restoreProject(id, user);
     }
 
+    @Get('projectsByCompetence/:id')
+    async findProjectsByCompetence(@Param('id', ParseIntPipe) id: number) {
+        return await this.projectService.findProjectsByCompetence(id);
+    }
+
     @Get()
     async findAllProjects(): Promise<ProjectEntity[]> {
         return await this.projectService.findAllProjects();

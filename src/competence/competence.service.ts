@@ -1,3 +1,4 @@
+import { ProjectEntity } from './../project/entities/project.entity/project.entity';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,6 +27,11 @@ export class CompetenceService {
 
         const newCompetence = this.competenceRepository.create({ name });
         return await this.competenceRepository.save(newCompetence);
+    }
+
+    async findProjectsByCompetence(id: number) {
+        const competence = await this.competenceRepository.find({where: {id}, relations: ['projects']});
+        return competence;
     }
 
 }

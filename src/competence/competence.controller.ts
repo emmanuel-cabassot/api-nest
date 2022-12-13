@@ -1,3 +1,4 @@
+import { ProjectEntity } from './../project/entities/project.entity/project.entity';
 import { CompetenceEntity } from './entities/competence.entity/competence.entity';
 import { CompetenceService } from './competence.service';
 import { Controller, Get, Param, Post } from '@nestjs/common';
@@ -20,6 +21,11 @@ export class CompetenceController {
     @Post(':name')
     async createCompetence(@Param() params): Promise<CompetenceEntity> {
         return await this.competenceService.createCompetence(params.name);
+    }
+
+    @Get('projects/:id')
+    async findProjectsByCompetence(@Param() params) {
+        return await this.competenceService.findProjectsByCompetence(params.id);
     }
 
 }
