@@ -1,6 +1,5 @@
-import { projectCompetenceEntity } from './../../../project-competence/entities/project-competence.entity/project-competence.entity';
-import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
+import { CvCompetenceEntity } from './../../../cv-competence/entities/cv-competence.entity/cv-competence.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('cv')
 export class CvEntity {
     
@@ -18,5 +17,7 @@ export class CvEntity {
         type: 'text',
     })
     aboutMe: string;
+
+    competences?: CvCompetenceEntity[];
 
 }
