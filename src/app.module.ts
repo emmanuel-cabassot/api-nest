@@ -6,6 +6,7 @@ import { ProjectModule } from './project/project.module';
 import { CompetenceModule } from './competence/competence.module';
 import { ProjectUserModule } from './project-user/project-user.module';
 import { ProjectCompetenceModule } from './project-competence/project-competence.module';
+import { CvModule } from './cv/cv.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ProjectCompetenceModule } from './project-competence/project-competence
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule
+    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule, CvModule
   ],
   controllers: [],
   providers: [],
