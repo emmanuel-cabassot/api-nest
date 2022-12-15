@@ -22,11 +22,11 @@ export class CvCompetenceEntity {
         { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }
     )
     @JoinColumn([{ name: 'id_cv', referencedColumnName: 'id' }])
-    project: CvEntity;
+    cv: CvEntity;
 
     @ManyToOne(
         () => CompetenceEntity,
-        competence => competence.projects,
+        competence => competence.cvs,
         { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' , eager: true}
     )
     @JoinColumn([{ name: 'id_competence', referencedColumnName: 'id' }])

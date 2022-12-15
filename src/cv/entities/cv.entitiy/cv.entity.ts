@@ -1,5 +1,6 @@
+import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { CvCompetenceEntity } from './../../../cv-competence/entities/cv-competence.entity/cv-competence.entity';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 @Entity('cv')
 export class CvEntity {
     
@@ -18,6 +19,21 @@ export class CvEntity {
     })
     aboutMe: string;
 
-    competences?: CvCompetenceEntity[];
+    @ManyToMany(
+        () => CompetenceEntity, 
+        competence => competence.cvs, //optional
+        {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
+        @JoinTable({
+          name: 'cv_competence',
+          joinColumn: {
+            name: 'id_cv',
+            referencedColumnName: 'id',
+          },
+          inverseJoinColumn: {
+            name: 'id_competence',
+            referencedColumnName: 'id',
+          },
+        })
+    competences?: CompetenceEntity[];
 
 }
