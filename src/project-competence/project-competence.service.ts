@@ -42,4 +42,30 @@ export class ProjectCompetenceService {
         delete project.user.updatedAt;
         return project;
     }
+
+    async addProjectCompetence(addProjectCompetence: any, user) {
+        const project = await this.projectRepository.findOne({ where: { id: addProjectCompetence.id_project } });
+        
+        // Si le projet n'existe pas, on renvoie une erreur
+        if (!project)
+            throw new HttpException("Ce projet n'existe pas", 404);
+
+        // Si l'utilisateur n'est pas le créateur du projet ou l'admin, on renvoie une erreur
+        if (project.user.id != user.id && user.role != 'admin')
+            throw new HttpException("Vous n'êtes pas le créateur de ce projet", 403);
+
+        // On vérifie que la compétence n'est pas déjà associée au projet
+        const projectCompetence = await this.projectCompetenceRepository.findOne({ where: { idProject: addProjectCompetence.id_project, idCompetence: addProjectCompetence.id_competence } });
+        if (projectCompetence)
+            throw new HttpException("Cette compétence est déjà associée à ce projet", 409);
+
+        // On crée l'entité
+        const newProjectCompetenceEntity = new projectCompetenceEntity();
+        
+        newProjectCompetenceEntity.idProject = addProjectCompetence.id_project;
+        newProjectCompetenceEntity.idCompetence = addProjectCompetence.id_competence;
+
+        return await this.projectCompetenceRepository.save(newProjectCompetenceEntity);
+     
+    }
 }

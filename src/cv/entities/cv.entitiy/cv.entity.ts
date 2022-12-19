@@ -1,12 +1,13 @@
+import { UserEntity } from './../../../user/entites/user.entity/user.entity';
 import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { CvCompetenceEntity } from './../../../cv-competence/entities/cv-competence.entity/cv-competence.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 @Entity('cv')
 export class CvEntity {
-    
+
     @PrimaryGeneratedColumn()
     id: number;
-    
+
     @Column({
         type: 'varchar',
         length: 50,
@@ -14,26 +15,25 @@ export class CvEntity {
     name: string;
 
     @Column({
-        name: 'about_me',
-        type: 'text',
+        type: 'text'
     })
-    aboutMe: string;
+    about_me: string;
 
-    @ManyToMany(
-        () => CompetenceEntity, 
-        competence => competence.cvs, //optional
-        {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
-        @JoinTable({
-          name: 'cv_competence',
-          joinColumn: {
-            name: 'id_cv',
-            referencedColumnName: 'id',
-          },
-          inverseJoinColumn: {
-            name: 'id_competence',
-            referencedColumnName: 'id',
-          },
-        })
-    competences?: CompetenceEntity[];
+    @Column()
+    available: boolean;
+
+    @OneToMany(
+        type => CvCompetenceEntity,
+        cvCompetence => cvCompetence.cv,
+        { eager: true}
+    )
+    competences?: CvCompetenceEntity[];
+
+    @ManyToOne(
+        type => UserEntity,
+        user => user.cvs,
+        { onDelete: 'NO ACTION', onUpdate: 'NO ACTION', eager: true }
+    )
+    user: UserEntity;
 
 }

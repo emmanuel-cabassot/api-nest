@@ -126,7 +126,7 @@ export class UserService {
                 },
                 {
                     secret: process.env.SECRET_KEY_JWT,
-                    expiresIn: 60 * 60,
+                    expiresIn: 60 * 60 * 24 * 30,
                 },
             ),
             this.jwtService.signAsync(

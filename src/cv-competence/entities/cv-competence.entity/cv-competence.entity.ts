@@ -19,7 +19,7 @@ export class CvCompetenceEntity {
     @ManyToOne(
         () => CvEntity,
         cv => cv.competences,
-        { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }
+        { onDelete: 'CASCADE', onUpdate: 'CASCADE' }
     )
     @JoinColumn([{ name: 'id_cv', referencedColumnName: 'id' }])
     cv: CvEntity;
@@ -27,7 +27,7 @@ export class CvCompetenceEntity {
     @ManyToOne(
         () => CompetenceEntity,
         competence => competence.cvs,
-        { onDelete: 'NO ACTION', onUpdate: 'NO ACTION' , eager: true}
+        { onDelete: 'CASCADE', onUpdate: 'CASCADE', eager: true}
     )
     @JoinColumn([{ name: 'id_competence', referencedColumnName: 'id' }])
     competence: CompetenceEntity;

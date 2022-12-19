@@ -20,13 +20,10 @@ export class CompetenceEntity {
     )
     projects: projectCompetenceEntity[];
 
-    @ManyToMany(
-        () => CvEntity,
-        cv => cv.competences,
-        {onDelete: 'NO ACTION', onUpdate: 'NO ACTION',},
-      )
-    cvs: CompetenceEntity[];
-
-
+    @OneToMany(
+        type => CvCompetenceEntity,
+        cvCompetence => cvCompetence.competence
+    )
+    cvs?: CvCompetenceEntity[];
 
 }
