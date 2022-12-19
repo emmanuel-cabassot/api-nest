@@ -1,3 +1,4 @@
+import { CvEntity } from './../../../cv/entities/cv.entitiy/cv.entity';
 import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
@@ -60,6 +61,15 @@ export class UserEntity {
     )
     projectUsers: projectUserEntity[];
 
+    @OneToMany(
+        type => CvEntity,
+        cv => cv.user,
+        {
+            // cascade: true,
+            nullable: true
+        }
+    )
+    cvs: CvEntity[];
 
     @CreateDateColumn({
         update: false,
