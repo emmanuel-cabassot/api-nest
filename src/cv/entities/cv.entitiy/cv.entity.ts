@@ -1,5 +1,5 @@
+import { CvAspirationsEntity } from './../../../cv-aspirations/entities/cv-aspirations.entity/cv-aspirations.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
-import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { CvCompetenceEntity } from './../../../cv-competence/entities/cv-competence.entity/cv-competence.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 @Entity('cv')
@@ -35,5 +35,7 @@ export class CvEntity {
         { onDelete: 'NO ACTION', onUpdate: 'NO ACTION', eager: true }
     )
     user: UserEntity;
+
+    aspirations?: CvAspirationsEntity[];
 
 }
