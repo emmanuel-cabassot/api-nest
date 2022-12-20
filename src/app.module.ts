@@ -8,6 +8,8 @@ import { ProjectUserModule } from './project-user/project-user.module';
 import { ProjectCompetenceModule } from './project-competence/project-competence.module';
 import { CvModule } from './cv/cv.module';
 import { CvCompetenceModule } from './cv-competence/cv-competence.module';
+import { CvAspirationsModule } from './cv-aspirations/cv-aspirations.module';
+import { AspirationsModule } from './aspirations/aspirations.module';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { CvCompetenceModule } from './cv-competence/cv-competence.module';
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule, CvModule, CvCompetenceModule
+    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule, CvModule, CvCompetenceModule, CvAspirationsModule, AspirationsModule
   ],
   controllers: [],
   providers: [],
