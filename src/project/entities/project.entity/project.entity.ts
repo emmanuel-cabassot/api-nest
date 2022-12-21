@@ -22,6 +22,11 @@ export class ProjectEntity {
     })
     age: number;
 
+    @Column({
+        default: "switch3415c855-02fc-4371-9154-730beeb60595.png"
+    })
+    projectImage: string;
+
     @CreateDateColumn({
         update: false,
     })

@@ -1,3 +1,5 @@
+import { join } from 'path';
+import { from, Observable, switchMap } from 'rxjs';
 import { CompetenceEntity } from './../competence/entities/competence.entity/competence.entity';
 import { UserRoleEnum } from './../enum/user-role.enum';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
@@ -7,10 +9,12 @@ import { ProjectEntity } from './entities/project.entity/project.entity';
 import { In, Repository } from 'typeorm';
 import { AddProjectDto } from './dto/add-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import * as fs from 'fs';
+import { unlink } from 'fs';
 
 @Injectable()
 export class ProjectService {
-    
+
     constructor(
         @InjectRepository(ProjectEntity)
         private projectRepository: Repository<ProjectEntity>,
@@ -86,6 +90,41 @@ export class ProjectService {
         // on renvoie le projet
         return saveProject;
     }
+
+    async updateOne(idUser: number, idProject: number, projectImage: Partial<ProjectEntity>) {
+        const projectToUpdate = await this.projectRepository.findOne({ where: { id: idProject } });
+        // Si le projet n'existe pas, on renvoie une erreur
+        if (!projectToUpdate) {
+          throw new HttpException("Le projet que vous voulez modifier n'existe pas", 404);
+        }
+      
+        // On vérifie que l'utilisateur a bien accès au projet
+        const userIds = projectToUpdate.projectUsers.map((projectUser) => projectUser.user.id);
+        if (!userIds.includes(idUser)) {
+          fs.unlink(
+            join(__dirname, '..', '..', 'uploads', 'project-images', projectImage.projectImage),
+            (err) => {
+              if (err) throw err;
+              console.log('successfully deleted /tmp/hello');
+            },
+          );
+          throw new HttpException("Vous n'avez pas accès à ce projet", 403);
+        }
+      
+        if (projectToUpdate.projectImage && projectToUpdate.projectImage !== 'switch3415c855-02fc-4371-9154-730beeb60595.png') {
+          fs.unlink(
+            join(__dirname, '..', '..', 'uploads', 'project-images', projectToUpdate.projectImage),
+            (err) => {
+              if (err) throw err;
+              console.log('successfully deleted /tmp/hello');
+            },
+          );
+        }
+      
+        return from(this.projectRepository.update(idProject, projectImage)).pipe(
+          switchMap(() => this.projectRepository.findOneBy({ id: idProject })),
+          );
+        }
 
     async removeProject(id: number, user: object) {
         const projectToRemove = await this.projectExist(id);
