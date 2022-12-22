@@ -122,6 +122,14 @@ export class UserService {
         return user?.likedProjects;
     }
 
+    async getMyFavoriteProjects(userId: number): Promise<ProjectEntity[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['favoriteProjects'],
+        });
+        return user?.favoriteProjects;
+    }
+
     async addLikedProject(user: Partial<UserEntity>, projectId: number) {
         const project = await this.projectRepository.findOneBy({ id: projectId });
         const likedProjects = await this.userRepository.findOne({
@@ -132,6 +140,21 @@ export class UserService {
         await this.userRepository.save({
             ...user,
             likedProjects: [...likedProjects.likedProjects, project],
+        });
+        return project;
+    }
+    
+
+    async addFavoriteProject(user: Partial<UserEntity>, projectId: number) {
+        const project = await this.projectRepository.findOneBy({ id: projectId });
+        const favoriteProjects = await this.userRepository.findOne({
+            where: { id: user.id },
+            relations: ['favoriteProjects'],
+        });
+
+        await this.userRepository.save({
+            ...user,
+            favoriteProjects: [...favoriteProjects.favoriteProjects, project],
         });
         return project;
     }
@@ -148,6 +171,23 @@ export class UserService {
             likedProjects: likedProjects.likedProjects.filter(
 
                 (likedProject) => likedProject.id !== project.id
+            ),
+        });
+        return project;
+    }
+
+    async deleteFavoriteProject(user: Partial<UserEntity>, projectId: number) {
+        const project = await this.projectRepository.findOneBy({ id: projectId });
+        const favoriteProjects = await this.userRepository.findOne({
+            where: { id: user.id },
+
+            relations: ['favoriteProjects'],
+        });
+        await this.userRepository.save({
+            ...user,
+            likedProjects: favoriteProjects.favoriteProjects.filter(
+
+                (favoriteProject) => favoriteProject.id !== project.id
             ),
         });
         return project;

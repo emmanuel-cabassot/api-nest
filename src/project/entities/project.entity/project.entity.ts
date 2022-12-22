@@ -74,5 +74,13 @@ export class ProjectEntity {
         })
       likedBy: UserEntity[];
 
+      @ManyToMany(
+        type => UserEntity,
+        user => user.favoriteProjects,
+        {
+            // cascade: true,
+        })
+      favoriteBy: UserEntity[];
+
 
 }
