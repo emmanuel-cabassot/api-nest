@@ -15,7 +15,6 @@ import { map, Observable, of, tap } from 'rxjs';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
-import { buildMessage } from 'class-validator';
 
 export const storage = {
     storage: diskStorage({
@@ -36,7 +35,6 @@ export const storage = {
                     }
                 ))
             }
-
 
             const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
             const extension: string = path.parse(file.originalname).ext;
@@ -66,12 +64,39 @@ export class UserController {
     }
 
     @UseGuards(AccessTokenGuard)
+    @Post('add-liked-project/:id')
+    async addLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
+        const user = request.user;
+        return this.userService.addLikedProject(user, projectId);
+    }
+
+    @UseGuards(AccessTokenGuard)
     @Delete('delete-liked-project/:id')
     async deleteLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId: number): Promise<ProjectEntity> {
         const user = request.user;
         return this.userService.deleteLikedProject(user, projectId);
     }
 
+    @UseGuards(AccessTokenGuard)
+    @Get('favorites-projects')
+    async getMyFavoriteProjects(@Req() request: Request): Promise<ProjectEntity[]> {
+        const user = request.user['id'];
+        return this.userService.getMyFavoriteProjects(user);
+    }
+
+    @UseGuards(AccessTokenGuard)
+    @Post('add-favorite-project/:id')
+    async addFavoriteProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
+        const user = request.user;
+        return this.userService.addFavoriteProject(user, projectId);
+    }
+
+    @UseGuards(AccessTokenGuard)
+    @Delete('delete-favorite-project/:id')
+    async deleteFavoriteProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId: number): Promise<ProjectEntity> {
+        const user = request.user;
+        return this.userService.deleteFavoriteProject(user, projectId);
+    }
 
     @Post('register')
     @ApiBody({ type: [UserRegisterDto] })
@@ -85,12 +110,6 @@ export class UserController {
         return this.userService.login(loginCredentialsDto);
     }
 
-    @UseGuards(AccessTokenGuard)
-    @Post('add-liked-project/:id')
-    async addLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
-        const user = request.user;
-        return this.userService.addLikedProject(user, projectId);
-    }
 
     @Get('refresh')
     refreshTokens(@Body() refreshTokenObject) {

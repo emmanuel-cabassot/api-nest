@@ -90,6 +90,24 @@ export class UserEntity {
     })
     likedProjects: ProjectEntity[];
 
+    @ManyToMany(type => ProjectEntity,
+        project => project.likedBy,
+        {
+            // cascade: true,
+        })
+    @JoinTable({
+        name: 'favorite',
+        joinColumn: {
+            name: 'user_id',
+            referencedColumnName: 'id'
+        },
+        inverseJoinColumn: {
+            name: 'project_id',
+            referencedColumnName: 'id'
+        }
+    })
+    favoriteProjects: ProjectEntity[];
+
     @CreateDateColumn({
         update: false,
     })
