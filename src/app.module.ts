@@ -10,6 +10,7 @@ import { CvModule } from './cv/cv.module';
 import { CvCompetenceModule } from './cv-competence/cv-competence.module';
 import { CvAspirationsModule } from './cv-aspirations/cv-aspirations.module';
 import { AspirationsModule } from './aspirations/aspirations.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { AspirationsModule } from './aspirations/aspirations.module';
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule, CvModule, CvCompetenceModule, CvAspirationsModule, AspirationsModule
+    }), ProjectModule, UserModule, CompetenceModule, ProjectUserModule, ProjectCompetenceModule, CvModule, CvCompetenceModule, CvAspirationsModule, AspirationsModule, LikeModule
   ],
   controllers: [],
   providers: [],

@@ -1,3 +1,4 @@
+import { ProjectEntity } from 'src/project/entities/project.entity/project.entity';
 import { from, Observable, switchMap } from 'rxjs';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
@@ -15,6 +16,8 @@ export class UserService {
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
+        @InjectRepository(ProjectEntity)
+        private projectRepository: Repository<ProjectEntity>,
         private jwtService: JwtService,
         private configService: ConfigService
     ) { }
@@ -65,7 +68,6 @@ export class UserService {
             const tokens = await this.getTokens(user.id, user.surname, user.email, user.role);
             // on met à jour le refresh token dans la base de données
             await this.updateRefreshToken(user.id, tokens.refreshToken);
-            console.log('refreshToken(login): ', tokens.refreshToken);
             return {
                 access_token: tokens.accessToken,
                 refresh_token: tokens.refreshToken
@@ -85,13 +87,10 @@ export class UserService {
 
     async refreshTokens(userId: number, refreshToken: string) {
         const user = await this.userRepository.findOneBy({ id: userId });
-        console.log('user.refresh_token: ', user.refresh_token)
-        console.log('refreshToken: ', refreshToken)
         if (!user || !user.refresh_token)
             throw new NotFoundException('Refresh token invalid');
-        const refreshTokenMatches = await argon2.verify( user.refresh_token, refreshToken);
+        const refreshTokenMatches = await argon2.verify(user.refresh_token, refreshToken);
 
-        console.log('refreshTokenMatches: ', refreshTokenMatches)
         if (!refreshTokenMatches) throw new NotFoundException('Refresh token invalidddd');
         const tokens = await this.getTokens(user.id, user.surname, user.email, user.role);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
@@ -113,6 +112,45 @@ export class UserService {
         return from(this.userRepository.update(id, user)).pipe(
             switchMap(() => this.userRepository.findOneBy({ id }))
         );
+    }
+
+    async getMyLikedProjects(userId: number): Promise<ProjectEntity[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['likedProjects'],
+        });
+        return user?.likedProjects;
+    }
+
+    async addLikedProject(user: Partial<UserEntity>, projectId: number) {
+        const project = await this.projectRepository.findOneBy({ id: projectId });
+        const likedProjects = await this.userRepository.findOne({
+            where: { id: user.id },
+            relations: ['likedProjects'],
+        });
+
+        await this.userRepository.save({
+            ...user,
+            likedProjects: [...likedProjects.likedProjects, project],
+        });
+        return project;
+    }
+
+    async deleteLikedProject(user: Partial<UserEntity>, projectId: number) {
+        const project = await this.projectRepository.findOneBy({ id: projectId });
+        const likedProjects = await this.userRepository.findOne({
+            where: { id: user.id },
+
+            relations: ['likedProjects'],
+        });
+        await this.userRepository.save({
+            ...user,
+            likedProjects: likedProjects.likedProjects.filter(
+
+                (likedProject) => likedProject.id !== project.id
+            ),
+        });
+        return project;
     }
 
     async getTokens(userId: number, surname: string, email: string, role: string) {
