@@ -66,5 +66,13 @@ export class ProjectEntity {
     )
     projectUsers: projectUserEntity[];
 
+    @ManyToMany(
+        type => UserEntity,
+        user => user.likedProjects,
+        {
+            // cascade: true,
+        })
+      likedBy: UserEntity[];
+
 
 }

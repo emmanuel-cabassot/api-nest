@@ -1,6 +1,7 @@
+import { ProjectEntity } from 'src/project/entities/project.entity/project.entity';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
-import { Controller, Get, Post, Body, UseGuards, Req, UseInterceptors, UploadedFile, ParseIntPipe, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, UseInterceptors, UploadedFile, ParseIntPipe, Param, Res, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserEntity } from './entites/user.entity/user.entity';
 import { UserRegisterDto } from './dto/user-register.dto';
@@ -57,6 +58,21 @@ export class UserController {
         return this.userService.findAllUser();
     }
 
+    @UseGuards(AccessTokenGuard)
+    @Get('liked-projects')
+    async getMyLikedProjects(@Req() request: Request): Promise<ProjectEntity[]> {
+        const user = request.user['id'];
+        return this.userService.getMyLikedProjects(user);
+    }
+
+    @UseGuards(AccessTokenGuard)
+    @Delete('delete-liked-project/:id')
+    async deleteLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId: number): Promise<ProjectEntity> {
+        const user = request.user;
+        return this.userService.deleteLikedProject(user, projectId);
+    }
+
+
     @Post('register')
     @ApiBody({ type: [UserRegisterDto] })
     userRegister(@Body() userRegisterDto: UserRegisterDto) {
@@ -69,6 +85,12 @@ export class UserController {
         return this.userService.login(loginCredentialsDto);
     }
 
+    @UseGuards(AccessTokenGuard)
+    @Post('add-liked-project/:id')
+    async addLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
+        const user = request.user;
+        return this.userService.addLikedProject(user, projectId);
+    }
 
     @Get('refresh')
     refreshTokens(@Body() refreshTokenObject) {
@@ -94,7 +116,7 @@ export class UserController {
         new ParseFilePipe({
             validators: [
                 new MaxFileSizeValidator({ maxSize: 10000000 }),
-                new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/}),
+                new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
             ]
         })
     ) file, @Req() req): Observable<Object> {

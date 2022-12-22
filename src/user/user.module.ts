@@ -1,3 +1,4 @@
+import { ProjectEntity } from 'src/project/entities/project.entity/project.entity';
 import { AccessTokenStrategy } from './strategy/acessToken.strategy';
 import { RefreshTokenStrategy } from './strategy/refreshToken.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,7 +13,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, ProjectEntity]),
     JwtModule.register({
       // récupère les constantes du fichier .env grâce à la librairie dotenv(porcess.env.SECRET_KEY_JWT)
       //secret: process.env.SECRET_KEY_JWT,

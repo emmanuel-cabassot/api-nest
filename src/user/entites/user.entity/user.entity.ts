@@ -1,8 +1,9 @@
 import { CvEntity } from './../../../cv/entities/cv.entitiy/cv.entity';
 import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { ProjectEntity } from './../../../project/entities/project.entity/project.entity';
 import { UserRoleEnum } from './../../../enum/user-role.enum';
+
 
 @Entity('user')
 export class UserEntity {
@@ -33,7 +34,7 @@ export class UserEntity {
     })
     role: string;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     profileImage: string;
 
     @Column({
@@ -70,6 +71,24 @@ export class UserEntity {
         }
     )
     cvs: CvEntity[];
+
+    @ManyToMany(type => ProjectEntity,
+        project => project.likedBy,
+        {
+            // cascade: true,
+        })
+    @JoinTable({
+        name: 'like',
+        joinColumn: {
+            name: 'user_id',
+            referencedColumnName: 'id'
+        },
+        inverseJoinColumn: {
+            name: 'project_id',
+            referencedColumnName: 'id'
+        }
+    })
+    likedProjects: ProjectEntity[];
 
     @CreateDateColumn({
         update: false,
