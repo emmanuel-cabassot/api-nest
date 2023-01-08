@@ -53,20 +53,33 @@ export class UserController {
     @Get()
     @UseGuards(AccessTokenGuard)
     findAllUser(): Promise<UserEntity[]> {
+        
         return this.userService.findAllUser();
     }
+
+    
 
     @UseGuards(AccessTokenGuard)
     @Get('liked-projects')
     async getMyLikedProjects(@Req() request: Request): Promise<ProjectEntity[]> {
         const user = request.user['id'];
+
         return this.userService.getMyLikedProjects(user);
+    }
+
+    @UseGuards(AccessTokenGuard)
+    @Get('me')
+    async userInfos(@Req() request: Request): Promise<UserEntity> {
+        const user = request.user['id'];
+
+        return this.userService.userInfos(user);
     }
 
     @UseGuards(AccessTokenGuard)
     @Post('add-liked-project/:id')
     async addLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
         const user = request.user;
+
         return this.userService.addLikedProject(user, projectId);
     }
 
@@ -74,6 +87,7 @@ export class UserController {
     @Delete('delete-liked-project/:id')
     async deleteLikedProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId: number): Promise<ProjectEntity> {
         const user = request.user;
+
         return this.userService.deleteLikedProject(user, projectId);
     }
 
@@ -81,6 +95,7 @@ export class UserController {
     @Get('favorites-projects')
     async getMyFavoriteProjects(@Req() request: Request): Promise<ProjectEntity[]> {
         const user = request.user['id'];
+
         return this.userService.getMyFavoriteProjects(user);
     }
 
@@ -88,6 +103,7 @@ export class UserController {
     @Post('add-favorite-project/:id')
     async addFavoriteProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId): Promise<ProjectEntity> {
         const user = request.user;
+
         return this.userService.addFavoriteProject(user, projectId);
     }
 
@@ -95,29 +111,29 @@ export class UserController {
     @Delete('delete-favorite-project/:id')
     async deleteFavoriteProject(@Req() request: Request, @Param('id', ParseIntPipe) projectId: number): Promise<ProjectEntity> {
         const user = request.user;
+
         return this.userService.deleteFavoriteProject(user, projectId);
     }
 
     @Post('register')
     @ApiBody({ type: [UserRegisterDto] })
     userRegister(@Body() userRegisterDto: UserRegisterDto) {
+
         return this.userService.userRegister(userRegisterDto);
     }
 
     @Post('login')
     @ApiBody({ type: [LoginCredentialsDto] })
     loginCredentialsDto(@Body() loginCredentialsDto: LoginCredentialsDto) {
+
         return this.userService.login(loginCredentialsDto);
     }
 
 
-    @Get('refresh')
-    refreshTokens(@Body() refreshTokenObject) {
-        console.log('refreshToken : ', refreshTokenObject.refresh_token);
-        const refreshToken = refreshTokenObject.refresh_token;
-        const userId = refreshTokenObject.id
-        // console.log(request)
+    @Get('refresh/:refreshToken/:id')
+    refreshTokens(@Param('refreshToken') refreshToken: string, @Param('id', ParseIntPipe) userId: number) {
         // console.log('refreshToken (user controller) : ', refreshToken);
+
         return this.userService.refreshTokens(userId, refreshToken);
     }
 
@@ -125,6 +141,7 @@ export class UserController {
     @UseGuards(AccessTokenGuard)
     logout(@Req() request: Request) {
         const userId = request.user['id']
+
         return this.userService.logout(userId);
     }
 
@@ -149,6 +166,7 @@ export class UserController {
 
     @Get('profile-image/:imagename')
     findProfileImage(@Param('imagename') imagename, @Res() res): Observable<Object> {
+
         return of(res.sendFile(join(process.cwd(), 'uploads/profileimages/' + imagename)));
     }
 

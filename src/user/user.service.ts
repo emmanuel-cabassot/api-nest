@@ -122,6 +122,14 @@ export class UserService {
         return user?.likedProjects;
     }
 
+    async userInfos(userId: number): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['likedProjects', 'favoriteProjects'],
+        });
+        return user;
+    }
+
     async getMyFavoriteProjects(userId: number): Promise<ProjectEntity[]> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
