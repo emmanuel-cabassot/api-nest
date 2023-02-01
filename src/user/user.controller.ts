@@ -20,10 +20,11 @@ export const storage = {
     storage: diskStorage({
         destination: './uploads/profileimages',
         filename: (req, file, cb) => {
-            console.log(req.user);
+            console.log('on passe')
+            // console.log(req.user);
 
-            console.log('path manuel@@@@@@@', file.originalname)
-            console.log('path : ', path.parse(file.originalname));
+            // console.log('path manuel@@@@@@@', file.originalname)
+            // console.log('path : ', path.parse(file.originalname));
             if (req.user['profileImage']) {
                 const oldPath = join(__dirname, '..', '..', 'uploads', 'profileimages', req.user['profileImage']);
                 console.log('oldPath : ', oldPath);
@@ -132,7 +133,8 @@ export class UserController {
 
     @Get('refresh/:refreshToken/:id')
     refreshTokens(@Param('refreshToken') refreshToken: string, @Param('id', ParseIntPipe) userId: number) {
-        // console.log('refreshToken (user controller) : ', refreshToken);
+        console.log('refreshToken', refreshToken);
+        console.log('userId', userId);
 
         return this.userService.refreshTokens(userId, refreshToken);
     }
@@ -151,9 +153,9 @@ export class UserController {
     uploadFile(@UploadedFile(
         new ParseFilePipe({
             validators: [
-                new MaxFileSizeValidator({ maxSize: 10000000 }),
+                new MaxFileSizeValidator({ maxSize: 1000000000 }),
                 new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
-            ]
+            ],
         })
     ) file, @Req() req): Observable<Object> {
         const user: UserEntity = req.user;

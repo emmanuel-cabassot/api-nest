@@ -20,11 +20,13 @@ export class CvService {
         const { id } = user;
         // recherche des cv du user
         const myCvs =  await this.cvRepository.find({ where: { user: id } });
+        console.log('###########myCvs : ', myCvs)
         // Si l'utilisateur n'a pas de cv, on renvoie une erreur
         if (!myCvs) {
             throw new HttpException('You have no cv', 404);
         }
-        return await this.cvRepository.find({ where: { user } });
+        //return await this.cvRepository.find({ where: { user } });
+        return myCvs;
     }
 
    async addCv(cv, user) {
