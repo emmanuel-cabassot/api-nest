@@ -86,13 +86,28 @@ export class UserService {
 
 
     async refreshTokens(userId: number, refreshToken: string) {
+        console.log('1');
+        
         const user = await this.userRepository.findOneBy({ id: userId });
+        console.log('user', user);
+        
         if (!user || !user.refresh_token)
+        console.log('2');
+        
             throw new NotFoundException('Refresh token invalid');
+            console.log('3');
+            
         const refreshTokenMatches = await argon2.verify(user.refresh_token, refreshToken);
+        console.log('refreshTokenMatches', refreshTokenMatches);
+        
 
-        if (!refreshTokenMatches) throw new NotFoundException('Refresh token invalidddd');
+        if (!refreshTokenMatches) {
+            console.log('4');
+            
+            throw new NotFoundException('Refresh token invalidddd');
+        }
         const tokens = await this.getTokens(user.id, user.surname, user.email, user.role);
+        console.log('tokens', tokens)
         await this.updateRefreshToken(user.id, tokens.refreshToken);
         return tokens;
     }

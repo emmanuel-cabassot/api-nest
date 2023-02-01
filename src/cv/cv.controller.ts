@@ -13,6 +13,7 @@ export class CvController {
     ) {
         // recupere le user de la requete
         const { user } = request;
+        console.log('##############user : ', user)
         return await this.cvService.findAllCvByUser(user);
     }
 
