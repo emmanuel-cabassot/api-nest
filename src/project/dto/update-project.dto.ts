@@ -13,6 +13,14 @@ export class UpdateProjectDto {
     name: string;
 
     @ApiProperty({
+        description: 'Short description of the project for the card',
+        example: 'This is my project',
+    })
+    @IsOptional()
+    @IsString()
+    shortDescription: string;
+
+    @ApiProperty({
         description: 'Description of the project',
         example: 'This is my project',
     })

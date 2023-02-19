@@ -6,6 +6,7 @@ import { UserEntity } from './../user/entites/user.entity/user.entity';
 import { Injectable, HttpException, Delete } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectEntity } from './entities/project.entity/project.entity';
+import { projectUserEntity } from '../project-user/entities/project-user.entity/project-user.entity';
 import { In, Repository } from 'typeorm';
 import { AddProjectDto } from './dto/add-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -19,7 +20,9 @@ export class ProjectService {
         @InjectRepository(ProjectEntity)
         private projectRepository: Repository<ProjectEntity>,
         @InjectRepository(CompetenceEntity)
-        private competenceRepository: Repository<CompetenceEntity>
+        private competenceRepository: Repository<CompetenceEntity>,
+        @InjectRepository(projectUserEntity)
+        private projectUserRepository: Repository<projectUserEntity>
     ) { }
 
     async findAllProjects(): Promise<ProjectEntity[]> {
@@ -84,6 +87,12 @@ export class ProjectService {
         newProject.user = user;
         // on sauvegarde le projet en base de données
         const saveProject = await this.projectRepository.save(newProject);
+        // faire une fonction qui va ajouter dans la table project_user les id du projet et de l'utilisateur et son role
+        await this.projectUserRepository.save({
+            user: { id: user.id },
+            project: { id: saveProject.id },
+            role: UserRoleEnum.ADMIN
+        });
         // on enleve les informations sensibles de l'utilisateur
         saveProject ? this.deleteSensitiveDataUser(saveProject) : null
 

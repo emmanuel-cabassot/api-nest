@@ -166,6 +166,7 @@ export class UserController {
         )
     }
 
+    // recuperer l'image du profil
     @Get('profile-image/:imagename')
     findProfileImage(@Param('imagename') imagename, @Res() res): Observable<Object> {
 

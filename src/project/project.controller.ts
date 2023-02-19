@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AccessTokenGuard } from './../user/guards/access-token.guard';
 import { UserEntity } from './../user/entites/user.entity/user.entity';
 import { ProjectService } from './project.service';
-import { Controller, Get, Post, Patch, Param, Body, ParseIntPipe, Delete, UseGuards, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, ParseIntPipe, Delete, UseGuards, Req, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ProjectEntity } from './entities/project.entity/project.entity';
 import { AddProjectDto } from './dto/add-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -18,15 +18,15 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 
 export const storage = {
-  storage: diskStorage({
-    destination: './uploads/project-images',
-    filename: (req, file, cb) => {
-      const filename = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension = path.parse(file.originalname).ext;
+    storage: diskStorage({
+        destination: './uploads/project-images',
+        filename: (req, file, cb) => {
+            const filename = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+            const extension = path.parse(file.originalname).ext;
 
-      cb(null, `${filename}${extension}`);
-    },
-  }),
+            cb(null, `${filename}${extension}`);
+        },
+    }),
 };
 
 @Controller('project')
@@ -34,27 +34,29 @@ export const storage = {
 export class ProjectController {
     constructor(private readonly projectService: ProjectService) { }
 
+    // upload project image with id project
     @UseGuards(AccessTokenGuard)
     @Post('upload-project-image/:id')
     @UseInterceptors(FileInterceptor('file', storage))
     async uploadFile(
-      @UploadedFile(
-        new ParseFilePipe({
-          validators: [
-            new MaxFileSizeValidator({ maxSize: 10000000 }),
-            new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
-          ],
-        }),
-      )
-      file,
-      @Req() req,
-      @Param('id', ParseIntPipe) idProject,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 10000000 }),
+                    new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
+                ],
+            }),
+        )
+        file,
+        @Req() req,
+        @Param('id', ParseIntPipe) idProject,
     ) {
-      const idUser = req.user.id;
-  
-      return await this.projectService.updateOne(idUser, idProject, { projectImage: file.filename });
+        const idUser = req.user.id;
+
+        return await this.projectService.updateOne(idUser, idProject, { projectImage: file.filename });
     }
 
+    // get my projects
     @Get('myProjects')
     @UseGuards(AccessTokenGuard)
     async findMyProjects(
@@ -75,6 +77,7 @@ export class ProjectController {
         return await this.projectService.projectByAge(age);
     }
 
+    // find project by id
     @Get(':id')
     @ApiParam({ name: 'id', type: 'number', description: 'id of the project', required: true })
     @ApiResponse({
@@ -90,6 +93,7 @@ export class ProjectController {
         return this.projectService.findOneProject(params.id);
     }
 
+    // restore project by id
     @Get('restore/:id')
     @ApiParam({ name: 'id', type: 'number', description: 'id of the project to restore', required: true })
     @UseGuards(AccessTokenGuard)
@@ -106,6 +110,7 @@ export class ProjectController {
         return await this.projectService.findAllProjects();
     }
 
+    // Post new project
     @Post()
     @UseGuards(AccessTokenGuard)
     @ApiOperation({ summary: 'Add a project with infos user: require TOKEN' })
@@ -119,6 +124,7 @@ export class ProjectController {
         return this.projectService.addProject(addProjectDto, user);
     }
 
+    // delete project by id
     @Delete(':id')
     @UseGuards(AccessTokenGuard)
     @ApiOperation({ summary: 'Delete a project with infos user: require TOKEN' })
@@ -132,6 +138,7 @@ export class ProjectController {
         return this.projectService.removeProject(id, user);
     }
 
+    // soft delete project
     @Delete('deleteSoft/:id')
     @UseGuards(AccessTokenGuard)
     @ApiOperation({ summary: 'Soft delete a project if you are the owner: require or admin: require' })
@@ -145,6 +152,7 @@ export class ProjectController {
         return this.projectService.deleteSoftProject(id, user);
     }
 
+    // delete project by name
     @Delete('name/:name')
     @UseGuards(AccessTokenGuard)
     @ApiParam({ name: 'name', type: 'string', description: 'name of the project to delete', required: true })
@@ -163,5 +171,12 @@ export class ProjectController {
         @Body() updateProjectDto: UpdateProjectDto,
         @Param('id', ParseIntPipe) id): Promise<ProjectEntity> {
         return await this.projectService.updateProject(id, updateProjectDto);
+    }
+
+    // recuperer l'image du projet
+    @Get('project-image/:imagename')
+    findProfileImage(@Param('imagename') imagename, @Res() res): Observable<Object> {
+
+        return of(res.sendFile(join(process.cwd(), 'uploads/project-images/' + imagename)));
     }
 }
