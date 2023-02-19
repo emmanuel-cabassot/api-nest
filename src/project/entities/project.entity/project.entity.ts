@@ -2,7 +2,7 @@ import { projectCompetenceEntity } from './../../../project-competence/entities/
 import { projectUserEntity } from './../../../project-user/entities/project-user.entity/project-user.entity';
 import { CompetenceEntity } from './../../../competence/entities/competence.entity/competence.entity';
 import { UserEntity } from './../../../user/entites/user.entity/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, OneToMany, ManyToMany } from 'typeorm';
 
 @Entity('project')
 export class ProjectEntity {
@@ -11,6 +11,11 @@ export class ProjectEntity {
 
     @Column()
     name: string;
+
+    @Column({
+        type: 'text'
+    })
+    shortDescription: string;
 
     @Column({
         type: 'text'
@@ -26,6 +31,16 @@ export class ProjectEntity {
         default: "switch3415c855-02fc-4371-9154-730beeb60595.png"
     })
     projectImage: string;
+
+    @Column({
+        default: false
+    })
+    isOnLineProject: boolean;
+
+    @Column({
+        default: false
+    })
+    isSearchPersonn: boolean;
 
     @CreateDateColumn({
         update: false,
@@ -48,6 +63,7 @@ export class ProjectEntity {
     )
     user: UserEntity;
 
+    
     @OneToMany(
         type => projectCompetenceEntity,
         projectCompetence => projectCompetence.project,
@@ -81,6 +97,4 @@ export class ProjectEntity {
             // cascade: true,
         })
       favoriteBy: UserEntity[];
-
-
 }
