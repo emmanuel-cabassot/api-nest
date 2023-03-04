@@ -34,6 +34,11 @@ export class ProjectCompetenceService {
         return projectsWithSofttUser;
     }
 
+    async findAll() {
+        const allProjectsCompetence = await this.projectCompetenceRepository.find();
+        return allProjectsCompetence;
+    }
+
     async deleteSensitiveDataUser(project: ProjectEntity) {
         delete project.user.password;
         delete project.user.refresh_token;

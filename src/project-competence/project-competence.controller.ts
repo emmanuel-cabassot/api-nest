@@ -14,6 +14,11 @@ export class ProjectCompetenceController {
         return await this.projectCompetenceService.findProjectsByCompetence(id);
     }
 
+    @Get()
+    async findAll() {
+        return await this.projectCompetenceService.findAll();
+    }
+
     @UseGuards(AuthGuard('jwt'))
     @Post()
     async addProjectCompetence(
